@@ -47,8 +47,11 @@ serial_port = serial.Serial(
     port="dev/ttyTHS1",
     baudrate=115200,
     bytesize=serial.EIGHTBITS,
-    parity=serial.PARITY
+    parity=serial.PARITY_EVEN,
+    stopbits=serial.STOPBITS_ONE
 )
+# Sleep to allow system to initialize ports
+time.sleep(1)
 
 # Create thread for heartbeat (repeats continuously)
 # Implemented as daemon: a process that runs in the background
@@ -69,15 +72,38 @@ def thread_heartbeat(heartbeat):
 # Send MAVLink message 
 def thread_transmit(transmit):
     msg = "GCS to Drone"
-    i = 0
     logging.info("Thread %s: starting", transmit)
-    """ MAVLink transmission here """
     # transmit msg 
-    while(i < 256):
-        logging.info("Thread %s: %s", transmit, i)
-        i = i + 1
+    try:
+        serial_port.write("UART Message: ".encode())    # Unicode string needs encoding
+        serial_port.write(msg)
+        while True:
+            if (serial_port.inWaiting() > 0):   # Get # of bytes in i/p buffer
+                ip_buf_dat = serial_port.read()     # Print i/p buffer before writing transmit msg
+                print(ip_buf_dat)                   # Print contents from i/p buffer
+                serial_port.write(ip_buf_dat)
+                # if we get a carriage return, add a line feed too
+                # \r is a carriage return; \n is a line feed
+                # This is to help the tty program on the other end 
+                # Windows is \r\n for carriage return, line feed
+                # Macintosh and Linux use \n
+                if ip_buf_dat == "\r".encode():
+                    # For Windows boxen on the other end
+                    serial_port.write("\n".encode())
+
+    except KeyboardInterrupt:
+        print("Exiting Program")
+
+    except Exception as exception_error:
+        print("Error occured. Exiting program.")
+        print("Error: " + str(exception_error))
+
+    finally:
+        serial_port.close()
+        pass
 
     logging.info("Thread %s: finishing", transmit)
+
 
 # The main() will create & start the threads
 if __name__ == "__main__":
