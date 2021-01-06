@@ -3,7 +3,7 @@
    Receives UART data and displays it on Serial Monitor
  */
  
-#define MAX_INDEX 255
+#define MAX_INDEX 8
 #define CONNECT_TIME 1000
 
 byte *msg_ptr;
@@ -11,14 +11,14 @@ int byte_index, ctr, time1, time2;
 
 void setup() {
 
-  byte msg[MAX_INDEX+1];  // 256 Byte array
+  byte msg[MAX_INDEX];    // 8 Byte array
   msg_ptr = &msg[0];      // Stores address of array
   byte_index = 0;         // Index of array
   time1 = 0;
   time2 = 0;
   ctr = 0;
  
-  Serial.begin(115200);
+  Serial.begin(9600);
   Serial.println("--- UART RECEIVER ---");
 }
 
@@ -38,7 +38,7 @@ void loop() {
     }
   }
   // Print and clear buffer
-  for (ctr = 0; ctr < byte_index+1; ctr++) {
+  for (ctr = 0; ctr < byte_index; ctr++) {
      Serial.print("Byte ");
      Serial.print(ctr);
      Serial.print(": ");

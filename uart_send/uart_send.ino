@@ -3,7 +3,7 @@
    Sends UART sample data 
  */
  
-#define MAX_INDEX 255
+#define MAX_INDEX 8
 #define CONNECT_TIME 1000
 
 byte *msg_ptr;
@@ -11,18 +11,18 @@ int byte_index, ctr;
 
 void setup() {
 
-  byte msg[MAX_INDEX+1];  // 256 Byte array
+  byte msg[MAX_INDEX];    // 8 Byte array
   msg_ptr = &msg[0];      // Stores address of array
   byte_index = 0;         // Index of array
   ctr = 0;
 
-  Serial.begin(115200);
+  Serial.begin(9600);
 }
 
 void loop() { 
   // Set sample data
   for (ctr=0; ctr<MAX_INDEX; ctr++) {
-    *(msg_ptr+ctr) = ctr+10;
+    *(msg_ptr+ctr) = ctr;
     byte_index = ctr;
   }
   // Send sample data
